@@ -1,6 +1,20 @@
 ((
   dataDir = '/tmp/data', // 设定存放数据的目录
   ignoreOnce = true,
+  jsonLogging = new logging.JSONLogger('json-logger').toHTTP('http://192.168.10.35:30023/?query=insert%20into%20iot.log(message)%20format%20JSONAsString',
+  {
+    batch: {
+      timeout: 1,
+      interval: 1,
+      prefix: '[',
+      postfix: ']',
+      separator: ','
+    },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Basic ZGVmYXVsdDoxMjM0NTY='
+    }
+  }).log,
 ) => (
 
 pipy({
@@ -10,6 +24,7 @@ pipy({
 .import({
   __modbusDeviceName: 'modbus-nmi',
   __modbusSlaveID: 'modbus-nmi',
+  __modbusBaud: 'modbus-nmi',
 })
 
 .task()
@@ -29,9 +44,10 @@ pipy({
 // 根据 __modbusDeviceName, __modbusSlaveID 这2个参数进行采集
 .task('3s')
 .onStart(
-  () => (   
-    __modbusDeviceName = '/dev/ttyUSB0', // 需要根据实际情况修改
-    __modbusSlaveID = 17,                // 需要根据时间情况修改
+  () => (
+    __modbusDeviceName = '/dev/ttyUSB4', // 需要根据实际情况修改
+    __modbusSlaveID = 1,                 // 需要根据时间情况修改
+    __modbusBaud = 115200,               // 需要根据时间情况修改
     new Message()
   )
 )
@@ -104,6 +120,7 @@ pipy({
 .demuxHTTP().to(
   $=>$.replaceMessage(
     msg => (
+      msg?.body?.size > 0 && jsonLogging({message: msg.body.toString()}),
       console.log("[=== REST server received JSON message ===]", msg?.body),
       new Message('OK')
     )
@@ -111,3 +128,4 @@ pipy({
 )
 
 ))()
+

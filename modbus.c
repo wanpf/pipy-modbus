@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
+#include <math.h>
 #include <pipy/nmi.h>
 
 #include "modbus.h"
@@ -13,10 +14,11 @@
 enum {
   id_variable_modbusDeviceName,
   id_variable_modbusSlaveID,
+  id_variable_modbusBaud,
 };
 
 typedef enum DATA_TYPE {
-  SHOT,
+  SHORT,
   FLOAT,
 } DATA_TYPE;
 
@@ -27,36 +29,33 @@ typedef struct read_task {
 } read_task;
 
 // clang-format off
-static read_task task_list[] = { 
-  { 0, "0", SHOT }, 
-  { 1, "1", SHOT }, 
-  { 2, "2", SHOT }, 
-  { 3, "3", SHOT }, 
-  { 4, "4", SHOT }, 
-  { 5, "5", SHOT }, 
-  { 6, "6", SHOT }, 
-  { 7, "7", SHOT }, 
-  { 8, "8", SHOT }, 
-  { 0x1415, "20-21", FLOAT },
-  { 0x1617, "22-23", FLOAT }, 
-  { 0x1819, "24-25", FLOAT }, 
-  { 0x1a1b, "26-27", FLOAT }, 
-  { 0x1c1d, "28-29", FLOAT }, 
-  { 0x1e1f, "30-31", FLOAT }, 
-  { 0x2021, "32-33", FLOAT }, 
-  { 0x2a2b, "42-43", FLOAT },
-  { 0xb5b6, "181-182", FLOAT }, 
+static read_task task_list[] = {
+  { 0, "0", SHORT },
+  { 1, "1", SHORT },
+  { 2, "2", SHORT },
+  { 3, "3", SHORT },
+  { 4, "4", SHORT },
+  { 5, "5", SHORT },
+  { 6, "6", SHORT },
+  { 7, "7", FLOAT },
+  { 8, "8", FLOAT },
+  { 9, "9", SHORT },
+  { 0x0a, "10", SHORT },
+  { 0x0b, "11", SHORT },
+  { 0x0c, "12", SHORT },
+  { 0x0d, "13", SHORT },
+  { 0x0e, "14", SHORT },
 };
 // clang-format on
 
-static modbus_t *init_modbus(char *device, int slave, char **err_msg) {
+static modbus_t *init_modbus(char *device, int slave, int baud, char **err_msg) {
   modbus_t *ctx = NULL;
   uint32_t old_response_to_sec;
   uint32_t old_response_to_usec;
   uint32_t new_response_to_sec;
   uint32_t new_response_to_usec;
 
-  if ((ctx = modbus_new_rtu(device, 115200, 'N', 8, 1)) == NULL) {
+  if ((ctx = modbus_new_rtu(device, baud, 'N', 8, 1)) == NULL) {
     *err_msg = "Unable to allocate libmodbus context\n";
     return NULL;
   }
@@ -136,6 +135,7 @@ static void pipeline_process(pipy_pipeline ppl, void *user_ptr, pjs_value evt) {
       char device[256] = {'\0'};
       unsigned char data[256]; // max 250 bytes
       int slave = get_int(ppl, id_variable_modbusSlaveID);
+      int baud = get_int(ppl, id_variable_modbusBaud);
       char *err_msg = NULL;
       pjs_value response_head = pjs_object();
       char buffer[2000];
@@ -156,7 +156,8 @@ static void pipeline_process(pipy_pipeline ppl, void *user_ptr, pjs_value evt) {
       }
 
       if (err_msg == NULL) {
-        modbus_t *ctx = init_modbus(device, slave, &err_msg);
+        static int precision = 0;
+        modbus_t *ctx = init_modbus(device, slave, baud, &err_msg);
 
         if (ctx == NULL) {
           printf("========= init modbus error: %s\n", (const char *)err_msg);
@@ -164,24 +165,29 @@ static void pipeline_process(pipy_pipeline ppl, void *user_ptr, pjs_value evt) {
           buffer_append(&err_msg, &ptr, &space, "\"data\":[");
 
           for (int i = 0; (err_msg == NULL) && (i < sizeof(task_list) / sizeof(task_list[0])); i++) {
-            int rc, size;
+            int rc;
             read_task *task = &task_list[i];
 
-            if (task->type == SHOT) {
-              size = 1;
-            } else {
-              size = 2;
-            }
-            rc = modbus_read_registers(ctx, task->addr, size, (unsigned short *)data);
-            if (rc != size) {
+            // printf("====== addr: %d, size: %d\n", task->addr, size);
+
+            rc = modbus_read_registers(ctx, task->addr, 1, (unsigned short *)data);
+            if (rc != 1) {
               buffer_append(&err_msg, &ptr, &space, "{\"Address\":\"%s\",\"Error\":\"%s\"},", task->addr_str, modbus_strerror(errno));
+              // printf("====== addr: %d, size: %d, type: float, error: %s\n", task->addr, size, modbus_strerror(errno));
             } else {
-              if (task->type == SHOT) {
-                int value = *((short *)data);
-                buffer_append(&err_msg, &ptr, &space, "{\"Address\":\"%s\",\"Type\":\"short\",\"Value\":%d},", task->addr_str, value);
+              int value = *((short *)data);
+
+              if (task->addr == 3) {
+                precision = value;
+              }
+              if (task->type == SHORT) {
+                buffer_append(&err_msg, &ptr, &space, "{\"Address\":\"%s\",\"Type\":\"short\",\"Value\":\"%d\"},", task->addr_str, value);
+                //	        printf("====== addr: %d, size: %d, type: short, value: %d\n", task->addr, size, value);
               } else {
-                float value = *((float *)data);
-                buffer_append(&err_msg, &ptr, &space, "{\"Address\":\"%s\",\"Type\":\"float\",\"Value\":%.6f},", task->addr_str, value);
+                int round = pow(10, precision);
+                // printf("precision: %d, float value : %d\n", precision, value);
+                buffer_append(&err_msg, &ptr, &space, "{\"Address\":\"%s\",\"Type\":\"float\",\"Value\":\"%d.%d\"},", task->addr_str, value / round,
+                              abs(value) % round);
               }
             }
           }
@@ -215,5 +221,6 @@ static void pipeline_process(pipy_pipeline ppl, void *user_ptr, pjs_value evt) {
 void pipy_module_init() {
   pipy_define_variable(id_variable_modbusDeviceName, "__modbusDeviceName", "modbus-nmi", pjs_undefined());
   pipy_define_variable(id_variable_modbusSlaveID, "__modbusSlaveID", "modbus-nmi", pjs_undefined());
+  pipy_define_variable(id_variable_modbusBaud, "__modbusBaud", "modbus-nmi", pjs_undefined());
   pipy_define_pipeline("", pipeline_init, pipeline_free, pipeline_process);
 }

@@ -18,7 +18,7 @@ endif
 all: ${PRODUCT} 
 
 ${PRODUCT}: ${ROOT_DIR}/modbus.c
-	clang -I${INC_DIR} ${LDFLAGS} -shared $< -o $@
+	clang -I${INC_DIR} ${LDFLAGS} -fPIC -shared $< -o $@
 
 clean:
 	rm -f ${PRODUCT} 
