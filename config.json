@@ -1,0 +1,81 @@
+{
+  "deviceName": "/dev/ttyUSB4",
+  "slaveID": 1,
+  "baud": 9600,
+  "dataDir": "/tmp/data",
+  "loggerUrl_ignore": "http://192.168.10.35:30023/?query=insert%20into%20iot.log(message)%20format%20JSONAsString",
+  "loggerToken": "Basic ZGVmYXVsdDoxMjM0NTY=",
+  "records": [
+    {
+      "fc": 4,
+      "addr": 4112,
+      "type": "float"
+    },
+    {
+      "fc": 4,
+      "addr": 4114,
+      "type": "float"
+    },
+    {
+      "fc": 4,
+      "addr": 4116,
+      "type": "float"
+    },
+    {
+      "fc": 4,
+      "addr": 4118,
+      "type": "float"
+    },
+    {
+      "fc": 4,
+      "addr": 4120,
+      "type": "long"
+    },
+    {
+      "fc": 4,
+      "addr": 4122,
+      "type": "float"
+    },
+    {
+      "fc": 4,
+      "addr": 4124,
+      "type": "long"
+    },
+    {
+      "fc": 4,
+      "addr": 4126,
+      "type": "float"
+    },
+    {
+      "fc": 4,
+      "addr": 4128,
+      "type": "ushort"
+    },
+    {
+      "fc": 4,
+      "addr": 4129,
+      "type": "ushort"
+    },
+    {
+      "fc": 4,
+      "addr": 4130,
+      "type": "ushort"
+    },
+    {
+      "fc": 4,
+      "addr": 4131,
+      "type": "ushort"
+    },
+    {
+      "fc": 4,
+      "addr": 4132,
+      "type": "ushort"
+    },
+    {
+      "fc": 4,
+      "addr": 4133,
+      "type": "ushort"
+    }
+  ]
+}
+

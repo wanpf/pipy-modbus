@@ -1,7 +1,18 @@
 ((
-  dataDir = '/tmp/data', // 设定存放数据的目录
+  { config } = pipy.solve('config.js'),
+
+  records = ((str = '') => (
+    (config?.records || []).forEach(
+      e => (
+        str += e.fc + ' ' + e.addr + ' ' + e.type + '\n'
+      )
+    ),
+    str
+  ))(),
+
+  dataDir = config?.dataDir || '/tmp/data',
   ignoreOnce = true,
-  jsonLogging = new logging.JSONLogger('json-logger').toHTTP('http://192.168.10.35:30023/?query=insert%20into%20iot.log(message)%20format%20JSONAsString',
+  jsonLogging = config?.loggerUrl && new logging.JSONLogger('json-logger').toHTTP(config.loggerUrl,
   {
     batch: {
       timeout: 1,
@@ -12,7 +23,7 @@
     },
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Basic ZGVmYXVsdDoxMjM0NTY='
+      'Authorization': config.loggerToken,
     }
   }).log,
 ) => (
@@ -25,6 +36,7 @@ pipy({
   __modbusDeviceName: 'modbus-nmi',
   __modbusSlaveID: 'modbus-nmi',
   __modbusBaud: 'modbus-nmi',
+  __modbusRecords: 'modbus-nmi',
 })
 
 .task()
@@ -41,13 +53,13 @@ pipy({
 .demuxQueue().to('queue')
 
 // 定时器，每3秒采集一次 modbus 数据
-// 根据 __modbusDeviceName, __modbusSlaveID 这2个参数进行采集
 .task('3s')
 .onStart(
   () => (
-    __modbusDeviceName = '/dev/ttyUSB4', // 需要根据实际情况修改
-    __modbusSlaveID = 1,                 // 需要根据时间情况修改
-    __modbusBaud = 115200,               // 需要根据时间情况修改
+    __modbusDeviceName = config?.deviceName || '/dev/ttyUSB0',
+    __modbusSlaveID = config?.slaveID || 1,  
+    __modbusBaud = config?.band || 9600,
+    __modbusRecords = records || '',
     new Message()
   )
 )
@@ -102,7 +114,7 @@ pipy({
 .replay({delay: 5}).to(
   $=>$
   .muxHTTP(() => '').to(
-    $=>$.connect('127.0.0.1:8088') // 接收消息的 REST 服务器，需要根据实际情况修改
+    $=>$.connect('127.0.0.1:8088') 
   )
   .replaceMessage(
     msg => (
@@ -115,12 +127,11 @@ pipy({
   )
 )
 
-// 测试用，模拟数据接收服务端, 生产环境请去掉如下代码：
 .listen('127.0.0.1:8088')
 .demuxHTTP().to(
   $=>$.replaceMessage(
     msg => (
-      msg?.body?.size > 0 && jsonLogging({message: msg.body.toString()}),
+      msg?.body?.size > 0 && jsonLogging?.({message: msg.body.toString()}),
       console.log("[=== REST server received JSON message ===]", msg?.body),
       new Message('OK')
     )
@@ -128,4 +139,3 @@ pipy({
 )
 
 ))()
-
