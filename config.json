@@ -1,0 +1,92 @@
+{
+    "data": [
+        {
+            "id": 1,
+            "attributes": {
+                "config": {
+                    "deviceName": "192.168.1.112:502",
+                    "slaveID": 1,
+                    "baud": 9600,
+                    "init": {
+                        "queryInterval": "300s",
+                        "collectInterval": "60s"
+                    },
+                    "recordGroup": [
+
+                    ],
+                    "records": [
+                        {
+                            "fc": 3,
+                            "addr": 0,
+                            "type": "ushort",
+                            "label": "数据0"
+                        },
+                        {
+                            "fc": 3,
+                            "addr": 1,
+                            "type": "ushort",
+                            "label": "数据1"
+                        },
+                        {
+                            "fc": 3,
+                            "addr": 2,
+                            "type": "ushort",
+                            "label": "数据2"
+                        },
+                        {
+                            "fc": 3,
+                            "addr": 3,
+                            "type": "ushort",
+                            "label": "数据3"
+                        },
+                        {
+                            "fc": 3,
+                            "addr": 4,
+                            "type": "ushort",
+                            "label": "数据4"
+                        },
+                        {
+                            "fc": 3,
+                            "addr": 5,
+                            "type": "ushort",
+                            "label": "数据5"
+                        },
+                        {
+                            "fc": 3,
+                            "addr": 6,
+                            "type": "ushort",
+                            "label": "数据6"
+                        },
+                        {
+                            "fc": 3,
+                            "addr": 7,
+                            "type": "ushort",
+                            "label": "数据7"
+                        },
+                        {
+                            "fc": 3,
+                            "addr": 8,
+                            "type": "ushort",
+                            "label": "数据8"
+                        },
+                        {
+                            "fc": 3,
+                            "addr": 9,
+                            "type": "ushort",
+                            "label": "数据9"
+                        }
+                    ]
+                },
+                "actived": true,
+                "createdAt": "2023-03-29T07:52:04.165Z",
+                "updatedAt": "2023-06-08T00:51:08.399Z",
+                "location": "38.994289,121.584904/辽宁省大连市甘井子区中华路街道山东路390号华润·置地广场凯旋门3期",
+                "uuid": "kb-virt01",
+                "name": "kb-virt01",
+                "drive": {
+
+                }
+            }
+        }
+    ]
+}
