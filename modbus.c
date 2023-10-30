@@ -101,7 +101,7 @@ static int get_host_port(char *device, char *host) {
 
 static modbus_t *init_modbus(char *device, int slave, int baud, char *records, char **err_msg) {
   int port = 0;
-  char host[256];
+  char host[256] = {'\0'};
   modbus_t *ctx = NULL;
   uint32_t old_response_to_sec;
   uint32_t old_response_to_usec;
@@ -113,24 +113,28 @@ static modbus_t *init_modbus(char *device, int slave, int baud, char *records, c
     return NULL;
   }
   port = get_host_port(device, host);
+  // printf("init_modbus, host: %s, port: %d\n", host, port);
   if ((port > 0) && ((ctx = modbus_new_tcp(host, port)) == NULL)) {
     *err_msg = "Unable to allocate libmodbus/TCP context\n";
     return NULL;
-  } else if ((ctx = modbus_new_rtu(device, baud, 'N', 8, 1)) == NULL) {
+  } else if (port < 1 && (ctx = modbus_new_rtu(device, baud, 'N', 8, 1)) == NULL) {
     *err_msg = "Unable to allocate libmodbus/RTU context\n";
     return NULL;
   }
-  modbus_set_debug(ctx, FALSE);
-  modbus_set_error_recovery(ctx, MODBUS_ERROR_RECOVERY_LINK | MODBUS_ERROR_RECOVERY_PROTOCOL);
-  modbus_set_slave(ctx, slave);
-  modbus_get_response_timeout(ctx, &old_response_to_sec, &old_response_to_usec);
+  if (port < 1) {
+    modbus_set_debug(ctx, FALSE);
+    modbus_set_error_recovery(ctx, MODBUS_ERROR_RECOVERY_LINK | MODBUS_ERROR_RECOVERY_PROTOCOL);
+    modbus_set_slave(ctx, slave);
+    modbus_get_response_timeout(ctx, &old_response_to_sec, &old_response_to_usec);
+  }
   if (modbus_connect(ctx) == -1) {
     *err_msg = (char *)modbus_strerror(errno);
+    fprintf(stderr, "Connection failed: %s\n", modbus_strerror(errno));
     modbus_free(ctx);
     return NULL;
   }
-  modbus_get_response_timeout(ctx, &new_response_to_sec, &new_response_to_usec);
-  assert(old_response_to_sec == new_response_to_sec && old_response_to_usec == new_response_to_usec);
+  /// modbus_get_response_timeout(ctx, &new_response_to_sec, &new_response_to_usec);
+  /// assert(old_response_to_sec == new_response_to_sec && old_response_to_usec == new_response_to_usec);
 
   return ctx;
 }
@@ -299,3 +303,4 @@ void pipy_module_init() {
   pipy_define_variable(id_variable_modbusRecords, "__modbusRecords", "modbus-nmi", pjs_undefined());
   pipy_define_pipeline("", pipeline_init, pipeline_free, pipeline_process);
 }
+

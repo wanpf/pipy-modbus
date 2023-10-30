@@ -1,0 +1,330 @@
+{
+    "data": [
+        {
+            "id": 1,
+            "attributes": {
+                "config": {
+                    "deviceName": "/dev/ttyUSB0",
+                    "slaveID": 1,
+                    "baud": 9600,
+                    "init": {
+                        "queryInterval": "300s",
+                        "collectInterval": "60s"
+                    },
+                    "recordGroup": [
+                        {
+                            "label": "瞬时流量",
+                            "series": [
+                                4112,
+                                4114
+                            ]
+                        },
+                        {
+                            "label": "累积数值",
+                            "series": [
+                                4120,
+                                4122,
+                                4124,
+                                4126
+                            ]
+                        },
+                        {
+                            "label": "报警",
+                            "series": [
+                                4130,
+                                4131,
+                                4132,
+                                4133
+                            ]
+                        },
+                        {
+                            "label": "流量百分比（浮点）",
+                            "series": [
+                                4116
+                            ]
+                        },
+                        {
+                            "label": "流体电导比（浮点）",
+                            "series": [
+                                4118
+                            ]
+                        },
+                        {
+                            "label": "瞬时流量单位",
+                            "series": [
+                                4128
+                            ]
+                        },
+                        {
+                            "label": "累积总量单位",
+                            "series": [
+                                4129
+                            ]
+                        }
+                    ],
+                    "records": [
+                        {
+                            "fc": 4,
+                            "addr": 4112,
+                            "type": "float",
+                            "label": "瞬时流量浮点"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4114,
+                            "type": "float",
+                            "label": "瞬时流速浮点"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4116,
+                            "type": "float",
+                            "label": "流量百分比浮点"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4118,
+                            "type": "float",
+                            "label": "流体电导比浮点"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4120,
+                            "type": "long",
+                            "label": "正向累积数值（整数）"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4122,
+                            "type": "float",
+                            "label": "正向累积数值（小数）"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4124,
+                            "type": "long",
+                            "label": "反向累积数值（整数）"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4126,
+                            "type": "float",
+                            "label": "反向累积数值（小数）"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4128,
+                            "type": "ushort",
+                            "label": "瞬时流量单位"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4129,
+                            "type": "ushort",
+                            "label": "累积总量单位"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4130,
+                            "type": "ushort",
+                            "label": "上限报警"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4131,
+                            "type": "ushort",
+                            "label": "下限报警"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4132,
+                            "type": "ushort",
+                            "label": "空管报警"
+                        },
+                        {
+                            "fc": 4,
+                            "addr": 4133,
+                            "type": "ushort",
+                            "label": "系统报警"
+                        }
+                    ]
+                },
+                "actived": true,
+                "model": "model001",
+                "createdAt": "2023-03-29T07:52:04.165Z",
+                "updatedAt": "2023-06-15T01:43:36.803Z",
+                "extension": null,
+                "location": "38.994289,121.584904/辽宁省大连市甘井子区中华路街道山东路390号华润·置地广场凯旋门3期",
+                "uuid": "kb-00001",
+                "drivename": "流量传感器",
+                "name": "设备kb-00001",
+                "labels": [
+                    "A类设备",
+                    "电动机"
+                ],
+                "drive": {
+                    "data": {
+                        "id": 1,
+                        "attributes": {
+                            "name": "流量传感器",
+                            "script": null,
+                            "createdAt": "2023-04-10T04:12:08.710Z",
+                            "updatedAt": "2023-06-08T04:23:55.927Z",
+                            "config": {
+                                "deviceName": "/dev/ttyUSB0",
+                                "slaveID": 1,
+                                "baud": 115200,
+                                "dataDir": "/root/flomesh/pipy-iot-gateway/data",
+                                "recordGroup": [
+                                    {
+                                        "label": "瞬时流量",
+                                        "series": [
+                                            4112,
+                                            4114
+                                        ]
+                                    },
+                                    {
+                                        "label": "累积数值",
+                                        "series": [
+                                            4120,
+                                            4122,
+                                            4124,
+                                            4126
+                                        ]
+                                    },
+                                    {
+                                        "label": "报警",
+                                        "series": [
+                                            4130,
+                                            4131,
+                                            4132,
+                                            4133
+                                        ]
+                                    },
+                                    {
+                                        "label": "流量百分比（浮点）",
+                                        "series": [
+                                            4116
+                                        ]
+                                    },
+                                    {
+                                        "label": "流体电导比（浮点）",
+                                        "series": [
+                                            4118
+                                        ]
+                                    },
+                                    {
+                                        "label": "瞬时流量单位",
+                                        "series": [
+                                            4128
+                                        ]
+                                    },
+                                    {
+                                        "label": "累积总量单位",
+                                        "series": [
+                                            4129
+                                        ]
+                                    }
+                                ],
+                                "records": [
+                                    {
+                                        "fc": 4,
+                                        "addr": 4112,
+                                        "type": "float",
+                                        "label": "瞬时流量浮点"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4114,
+                                        "type": "float",
+                                        "label": "瞬时流速浮点"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4116,
+                                        "type": "float",
+                                        "label": "流量百分比浮点"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4118,
+                                        "type": "float",
+                                        "label": "流体电导比浮点"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4120,
+                                        "type": "long",
+                                        "label": "正向累积数值（整数）"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4122,
+                                        "type": "float",
+                                        "label": "正向累积数值（小数）"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4124,
+                                        "type": "long",
+                                        "label": "反向累积数值（整数）"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4126,
+                                        "type": "float",
+                                        "label": "反向累积数值（小数）"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4128,
+                                        "type": "ushort",
+                                        "label": "瞬时流量单位"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4129,
+                                        "type": "ushort",
+                                        "label": "累积总量单位"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4130,
+                                        "type": "ushort",
+                                        "label": "上限报警"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4131,
+                                        "type": "ushort",
+                                        "label": "下限报警"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4132,
+                                        "type": "ushort",
+                                        "label": "空管报警"
+                                    },
+                                    {
+                                        "fc": 4,
+                                        "addr": 4133,
+                                        "type": "ushort",
+                                        "label": "系统报警"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "meta": {
+        "pagination": {
+            "page": 1,
+            "pageSize": 25,
+            "pageCount": 1,
+            "total": 1
+        }
+    }
+}
