@@ -10,6 +10,16 @@
     )
   )(),
 
+  // ===================================
+  // 对采集的数据，进行简单转换。自定义处理函数：
+  transformRecords = records => (
+    Object.keys(records || {}).forEach(
+      key => (
+        records[key] = +records[key] / 10
+      )
+    )
+  ),
+
 ) => (
 
 pipy({
@@ -56,6 +66,7 @@ pipy({
         _dataJson.device = __deviceConfig.device,
         _dataJson.drive = __deviceConfig.drive,
         _filename = dataDir + '/' + new Date().toISOString(),
+        /// transformRecords(_dataJson.records),
         os.writeFile(_filename, JSON.encode({ data: _dataJson }))
       )
     ),
@@ -75,11 +86,9 @@ pipy({
 .use('rest.js', 'post')
 .replaceMessage(
   msg => (
-    msg?.body?.toString() === 'OK' ? (
+    msg?.body?.toString() === 'OK' && (
       os.unlink(_filename)
       /// , console.log('Post data OK, filename:', _filename)
-    ) : (
-      console.log('Post data FAIL, filename:', _filename)
     ),
     msg
   )
