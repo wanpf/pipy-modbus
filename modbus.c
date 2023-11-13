@@ -280,7 +280,7 @@ static void pipeline_process(pipy_pipeline ppl, void *user_ptr, pjs_value evt) {
 
       if (err_msg != NULL) {
         printf("========= modbus error message: %s\n", (const char *)err_msg);
-        buffer_append(&err_msg, &ptr, &space, ",\"error\":\"%s\"}", err_msg);
+        buffer_append(&err_msg, &ptr, &space, "\"error\":\"%s\"}", err_msg);
         pjs_object_set_property(response_head, pjs_string("error", strlen("error")), pjs_string(err_msg, strlen(err_msg)));
       } else {
         buffer_append(&err_msg, &ptr, &space, "}");
@@ -303,4 +303,3 @@ void pipy_module_init() {
   pipy_define_variable(id_variable_modbusRecords, "__modbusRecords", "modbus-nmi", pjs_undefined());
   pipy_define_pipeline("", pipeline_init, pipeline_free, pipeline_process);
 }
-
