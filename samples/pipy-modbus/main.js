@@ -37,7 +37,7 @@
 )
 
 
-// post data to strapi 
+// post data to strapi
 .task(initCfg.postInterval)
 .onStart(
   () => (

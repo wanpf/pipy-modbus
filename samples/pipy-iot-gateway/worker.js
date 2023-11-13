@@ -15,7 +15,7 @@
     all ? (
       resolves.forEach(
         r => r()
-      )      
+      )
     ) : (
       resolves.pop()?.()
     )
@@ -45,9 +45,9 @@ pipy({
 .onStart(
   () => (
     __modbusDeviceName = __deviceConfig?.config?.deviceName || '/dev/ttyUSB0',
-    __modbusSlaveID = __deviceConfig?.config?.slaveID || 1,  
+    __modbusSlaveID = __deviceConfig?.config?.slaveID || 1,
     __modbusBaud = __deviceConfig?.config?.baud || 9600,
-    __modbusRecords = records(__deviceConfig?.config?.records),    
+    __modbusRecords = records(__deviceConfig?.config?.records),
     _dataJson = null,
     new Message()
   )
@@ -78,7 +78,7 @@ pipy({
 .pipeline('send')
 .replaceMessage(
   msg => (
-    _filename = msg.body.toString(),    
+    _filename = msg.body.toString(),
     new Message(os.readFile(_filename))
   )
 )
@@ -89,9 +89,9 @@ pipy({
       os.unlink(_filename)
       // , console.log('Post data, filename:', _filename)
     ),
-    msg    
+    msg
   )
-)  
+)
 
 // batch post data
 .pipeline('post')

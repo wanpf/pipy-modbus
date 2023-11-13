@@ -1,5 +1,4 @@
 ((
-
   initCfg = JSON.decode(pipy.load('init.json')),
 
   dataDir = initCfg?.dataDir || '/tmp/data',
@@ -16,7 +15,9 @@
 pipy({
   _filename: undefined,
   _dataJson: undefined,
-  _sendTask: {},
+  _messages: null,
+  _resolve: null,
+  _waitPromises: null,
 })
 
 .import({
@@ -33,9 +34,9 @@ pipy({
 .onStart(
   () => (
     __modbusDeviceName = __deviceConfig?.config?.deviceName || '/dev/ttyUSB0',
-    __modbusSlaveID = __deviceConfig?.config?.slaveID || 1,  
+    __modbusSlaveID = __deviceConfig?.config?.slaveID || 1,
     __modbusBaud = __deviceConfig?.config?.baud || 9600,
-    __modbusRecords = records(__deviceConfig?.config?.records),    
+    __modbusRecords = records(__deviceConfig?.config?.records),
     _dataJson = null,
     /// console.log('collect task:', __modbusDeviceName, __modbusRecords),
     new Message()
@@ -46,7 +47,7 @@ pipy({
   msg => (
     msg?.body && (
       _dataJson = JSON.decode(msg?.body),
-      _dataJson?.ts > 0 && (
+      (_dataJson?.ts > 0) && (
         delete _dataJson.id,
         _dataJson.created_at = new Date(_dataJson.ts * 1000).toISOString(),
         delete _dataJson.ts,
@@ -55,7 +56,7 @@ pipy({
         _dataJson.device = __deviceConfig.device,
         _dataJson.drive = __deviceConfig.drive,
         _filename = dataDir + '/' + new Date().toISOString(),
-        os.writeFile(_filename, JSON.encode({data: _dataJson}))
+        os.writeFile(_filename, JSON.encode({ data: _dataJson }))
       )
     ),
     new StreamEnd
@@ -67,20 +68,22 @@ pipy({
 .pipeline('send')
 .replaceMessage(
   msg => (
-    _filename = msg.body.toString(),    
+    _filename = msg.body.toString(),
     new Message(os.readFile(_filename))
   )
 )
 .use('rest.js', 'post')
 .replaceMessage(
   msg => (
-    msg?.body?.toString() === 'OK' && (
+    msg?.body?.toString() === 'OK' ? (
       os.unlink(_filename)
-      // , console.log('Post data, filename:', _filename)
+      /// , console.log('Post data OK, filename:', _filename)
+    ) : (
+      console.log('Post data FAIL, filename:', _filename)
     ),
-    msg    
+    msg
   )
-)  
+)
 
 
 // batch post data
@@ -91,39 +94,51 @@ pipy({
       files = os.readDir(dataDir).sort().filter(s => !s.endsWith('/')), // TODO, many files?
       parts = files.slice(files.length > 10 ? files.length - 10 : 0),
     ) => (
-      _sendTask.count = parts.length,
-      parts.map(s => (
-        // console.log('[=== load data ===]', dataDir + '/' + s),
-        new Message(dataDir + '/' + s)
-      ))
+      _waitPromises = [],
+      _messages = parts.map(
+        s => (
+          /// console.log('[=== load data ===]', dataDir + '/' + s),
+          _waitPromises.push(new Promise(
+            r => _resolve = r
+          )),
+          new Message({ path: dataDir + '/' + s, resolve: _resolve })
+        )
+      ),
+      _waitPromises.length > 0 ? _messages : new Data
     )
   )()
 )
 .branch(
-  () => _sendTask.count > 0, (
+  () => _waitPromises.length > 0, (
     $=>$
-    .demuxQueue().to(
-      $=>$.link('send')
-    )
-    .handleMessage(
-      (msg) => (
-        (msg?.body?.toString?.() !== 'OK') ? (_sendTask.count = 0) : _sendTask.count--
+    .demux().to(
+      $=>$
+      .replaceMessage(
+        msg => (
+          _resolve = msg.head.resolve,
+          new Message(msg.head.path)
+        )
       )
-    )
-    .handleStreamEnd(
-      () => (
-        _sendTask.count = 0
+      .link('send')
+      .handleMessage(
+        () => (
+          _resolve?.()
+        )
       )
-    )
-    .wait(
-      () => _sendTask.count <= 0
+      .replaceStreamEnd(
+        () => (
+          _resolve?.(),
+          new Message
+        )
+      )
     )
   ), (
     $=>$
   )
 )
-.replaceData(
-  () => new StreamEnd
+.wait(
+  () => Promise.all(_waitPromises)
 )
+.replaceData(new StreamEnd)
 
 ))()

@@ -47,7 +47,7 @@
   )(),
 
   configObj = null,
-  
+
   configHash = (
     (
       filepath = initCfg.workDir.endsWith('/') ? initCfg.workDir : initCfg.workDir + '/',
@@ -123,11 +123,11 @@ pipy()
     deviceConfig.strapiJwt = null,
     new Message(
       {
-        method: 'POST', 
-        host: initCfg.strapiHost, 
-        path: initCfg.loginUri, 
+        method: 'POST',
+        host: initCfg.strapiHost,
+        path: initCfg.loginUri,
         headers: {'Content-Type': 'application/json'}
-      }, 
+      },
       `{"identifier": "${initCfg.loginUser}","password":"${initCfg.loginPassword}"}`
     )
   )
@@ -189,7 +189,7 @@ pipy()
           host: initCfg.strapiHost,
           path: `${initCfg.queryUri}${initCfg.uuid}`,
           headers: { 'Authorization': 'Bearer ' + deviceConfig.strapiJwt }
-        }        
+        }
       )
     )
   )
@@ -207,7 +207,7 @@ pipy()
         ) : (
           (resp?.data?.[0]?.id > 0) && (
             updateConfig(resp)
-          ),            
+          ),
           new StreamEnd
         )
       )
@@ -223,14 +223,14 @@ pipy()
     $=>$
     .replaceMessage(
       msg => (
-        new Message(      
+        new Message(
           {
             method: 'POST',
             host: initCfg.strapiHost,
             path: initCfg.postUri,
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + deviceConfig.strapiJwt }
           },
-          msg.body      
+          msg.body
         )
       )
     )
